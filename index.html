@@ -115,34 +115,54 @@
         // --- STATE MANAGEMENT ---
         const state = {
             speakers: [
-                { id: 1, name: 'Achird', voice: 'ja-JP-Chirp3-HD-Achird', color: 'bg-yellow-400' },
-                { id: 2, name: 'Aoede', voice: 'ja-JP-Chirp3-HD-Aoede', color: 'bg-purple-400' },
-                { id: 3, name: 'Charon', voice: 'ja-JP-Chirp3-HD-Charon', color: 'bg-green-400' },
-                { id: 4, name: 'Leda', voice: 'ja-JP-Chirp3-HD-Leda', color: 'bg-pink-400' },
+                { id: 1, name: 'Achird', voice: 'ja-JP-Chirp-v1-B', color: 'bg-yellow-400' },
+                { id: 2, name: 'Aoede', voice: 'ja-JP-Chirp-v1-C', color: 'bg-purple-400' },
+                { id: 3, name: 'Charon', voice: 'ja-JP-Standard-B', color: 'bg-green-400' },
+                { id: 4, name: 'Leda', voice: 'ja-JP-Standard-C', color: 'bg-pink-400' },
             ],
             dialogues: [],
             apiKey: '',
             availableVoices: [
-                // Standard Voices
-                { name: 'Standard-A (Perempuan)', value: 'ja-JP-Standard-A' },
-                { name: 'Standard-B (Laki-laki)', value: 'ja-JP-Standard-B' },
-                { name: 'Standard-C (Perempuan)', value: 'ja-JP-Standard-C' },
-                { name: 'Standard-D (Laki-laki)', value: 'ja-JP-Standard-D' },
-
-                // WaveNet Voices
-                { name: 'WaveNet-A (Perempuan)', value: 'ja-JP-Wavenet-A' },
-                { name: 'WaveNet-B (Laki-laki)', value: 'ja-JP-Wavenet-B' },
-                { name: 'WaveNet-C (Perempuan)', value: 'ja-JP-Wavenet-C' },
-                { name: 'WaveNet-D (Laki-laki)', value: 'ja-JP-Wavenet-D' },
-
-                // Neural2 Voices
-                { name: 'Neural2-B (Perempuan)', value: 'ja-JP-Neural2-B' },
-                { name: 'Neural2-C (Laki-laki)', value: 'ja-JP-Neural2-C' },
-                { name: 'Neural2-D (Perempuan)', value: 'ja-JP-Neural2-D' },
-
-                // Chirp Voices (Studio)
-                { name: 'Studio-ja-JP-Chirp-v1-B (Laki-laki)', value: 'ja-JP-Chirp-v1-B' },
-                { name: 'Studio-ja-JP-Chirp-v1-C (Perempuan)', value: 'ja-JP-Chirp-v1-C' },
+                { name: 'Achernar', value: 'ja-JP-Chirp-v1-A' },
+                { name: 'Achird', value: 'ja-JP-Chirp-v1-B' },
+                { name: 'Algenib', value: 'ja-JP-Chirp-v1-C' },
+                { name: 'Algieba', value: 'ja-JP-Chirp-v1-D' },
+                { name: 'Alnilam', value: 'ja-JP-Chirp-v1-E' },
+                { name: 'Aoede', value: 'ja-JP-Chirp-v1-F' },
+                { name: 'Autonoe', value: 'ja-JP-Chirp-v1-G' },
+                { name: 'Callirrhoe', value: 'ja-JP-Chirp-v1-H' },
+                { name: 'Charon', value: 'ja-JP-Chirp-v1-I' },
+                { name: 'Despina', value: 'ja-JP-Chirp-v1-J' },
+                { name: 'Enceladus', value: 'ja-JP-Chirp-v1-K' },
+                { name: 'Erinome', value: 'ja-JP-Chirp-v1-L' },
+                { name: 'Fenrir', value: 'ja-JP-Chirp-v1-M' },
+                { name: 'Gacrux', value: 'ja-JP-Chirp-v1-N' },
+                { name: 'Iapetus', value: 'ja-JP-Chirp-v1-O' },
+                { name: 'Kore', value: 'ja-JP-Chirp-v1-P' },
+                { name: 'Laomedeia', value: 'ja-JP-Chirp-v1-Q' },
+                { name: 'Leda', value: 'ja-JP-Chirp-v1-R' },
+                { name: 'Orus', value: 'ja-JP-Chirp-v1-S' },
+                { name: 'Puck', value: 'ja-JP-Chirp-v1-T' },
+                { name: 'Pulcherrima', value: 'ja-JP-Chirp-v1-U' },
+                { name: 'Rasalgethi', value: 'ja-JP-Chirp-v1-V' },
+                { name: 'Sadachbia', value: 'ja-JP-Chirp-v1-W' },
+                { name: 'Sadaltager', value: 'ja-JP-Chirp-v1-X' },
+                { name: 'Schedar', value: 'ja-JP-Chirp-v1-Y' },
+                { name: 'Sulafat', value: 'ja-JP-Chirp-v1-Z' },
+                { name: 'Umbriel', value: 'ja-JP-Chirp-v1-AA' },
+                { name: 'Vindemiatrix', value: 'ja-JP-Chirp-v1-AB' },
+                { name: 'Zubenelgenubi', value: 'ja-JP-Chirp-v1-AC' },
+                { name: 'Standard-A', value: 'ja-JP-Standard-A' },
+                { name: 'Standard-B', value: 'ja-JP-Standard-B' },
+                { name: 'Standard-C', value: 'ja-JP-Standard-C' },
+                { name: 'Standard-D', value: 'ja-JP-Standard-D' },
+                { name: 'WaveNet-A', value: 'ja-JP-Wavenet-A' },
+                { name: 'WaveNet-B', value: 'ja-JP-Wavenet-B' },
+                { name: 'WaveNet-C', value: 'ja-JP-Wavenet-C' },
+                { name: 'WaveNet-D', value: 'ja-JP-Wavenet-D' },
+                { name: 'Neural2-B', value: 'ja-JP-Neural2-B' },
+                { name: 'Neural2-C', value: 'ja-JP-Neural2-C' },
+                { name: 'Neural2-D', value: 'ja-JP-Neural2-D' },
             ]
         };
 
@@ -319,12 +339,11 @@
                 },
                 audioConfig: {
                     audioEncoding: audioFormat
-                },
-                model: "gemini-2.5-flash"
+                }
             };
 
             try {
-                const response = await fetch(`https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=${state.apiKey}`, {
+                const response = await fetch(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${state.apiKey}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
