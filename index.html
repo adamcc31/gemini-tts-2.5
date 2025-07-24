@@ -312,33 +312,39 @@
             hideError();
             dom.audioPlayer.classList.add('hidden');
 
-            const turns = state.dialogues.map(dialogue => {
+            const ssml_content = state.dialogues.map(dialogue => {
                 const speaker = state.speakers.find(s => s.id === dialogue.speakerId);
-                return {
-                    text: `${dialogue.instruction} ${dialogue.text}`,
-                    speaker: speaker.voice,
-                };
-            });
+                const textToSpeak = `${dialogue.instruction} ${dialogue.text}`;
+                const escapedText = textToSpeak
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&apos;');
 
+                return `<voice name="${speaker.voice}">${escapedText}</voice>`;
+            }).join('\n');
+
+            const full_ssml = `<speak>${ssml_content}</speak>`;
+
+            const mainVoice = state.speakers.find(s => s.id === state.dialogues[0].speakerId);
             const audioFormat = dom.audioFormat.value;
 
             const payload = {
                 input: {
-                    multiSpeakerMarkup: {
-                        turns: turns,
-                    },
+                    ssml: full_ssml
                 },
                 voice: {
                     languageCode: 'ja-JP',
-                    name: 'ja-JP-Studio-MultiSpeaker',
+                    name: mainVoice.voice
                 },
                 audioConfig: {
-                    audioEncoding: audioFormat,
-                },
+                    audioEncoding: audioFormat
+                }
             };
 
             try {
-                const response = await fetch(`https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=${state.apiKey}`, {
+                const response = await fetch(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${state.apiKey}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
