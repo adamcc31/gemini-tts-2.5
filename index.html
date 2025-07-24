@@ -47,7 +47,7 @@
             <div class="mb-6 bg-gray-800 border border-gray-700 rounded-lg p-4">
                 <label for="apiKey" class="block text-sm font-medium text-gray-300 mb-2">Google Cloud API Key</label>
                 <input type="password" id="apiKey" placeholder="Masukkan API Key Anda di sini" class="w-full bg-gray-900 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
-                <p class="text-xs text-gray-500 mt-2">API Key Anda diperlukan untuk menghasilkan audio. Key tidak akan disimpan.</p>
+                <p class="text-xs text-gray-500 mt-2">Your API key is required to generate audio. The key is not stored and is only used for the current session.</p>
             </div>
 
             <!-- Script Builder Section -->
@@ -66,7 +66,7 @@
                     </select>
                 </div>
             </div>
-            
+
             <!-- Audio Player and Status -->
             <div id="status-container" class="mt-8">
                  <div id="loading-indicator" class="hidden flex items-center gap-3 bg-gray-800 p-4 rounded-lg">
@@ -78,6 +78,7 @@
                 </div>
                  <div id="error-message" class="hidden p-4 bg-red-900 border border-red-700 text-red-200 rounded-lg"></div>
                  <audio id="audio-player" controls class="w-full mt-4 hidden"></audio>
+                 <a id="download-link" class="hidden mt-4 text-blue-400 hover:text-blue-300" download="speech.mp3">Download Audio</a>
             </div>
 
         </main>
@@ -86,13 +87,21 @@
         <aside class="w-full md:w-1/3 bg-gray-950 p-6 md:p-8 border-l border-gray-800">
             <div class="sticky top-8">
                 <h2 class="text-xl font-bold mb-6">Run Settings</h2>
-                
+
                 <button id="generate-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 mb-8">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
                     Generate Speech
                 </button>
 
                 <div>
+                    <h3 class="text-lg font-semibold mb-4">Audio Settings</h3>
+                    <div class="mb-4">
+                        <label for="audio-format" class="block text-sm font-medium text-gray-400 mb-1">Audio Format</label>
+                        <select id="audio-format" class="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                            <option value="MP3">MP3</option>
+                            <option value="WAV">WAV</option>
+                        </select>
+                    </div>
                     <h3 class="text-lg font-semibold mb-4">Pengaturan Suara</h3>
                     <div id="voice-settings-container" class="space-y-4">
                         <!-- Voice settings will be inserted here by JavaScript -->
@@ -113,37 +122,27 @@
             ],
             dialogues: [],
             apiKey: '',
-            // CORRECTED: Using full, official model names from the provided CSV file.
             availableVoices: [
-                { name: 'Achernar (Perempuan)', value: 'ja-JP-Chirp3-HD-Achernar' },
-                { name: 'Achird (Laki-laki)', value: 'ja-JP-Chirp3-HD-Achird' },
-                { name: 'Algenib (Laki-laki)', value: 'ja-JP-Chirp3-HD-Algenib' },
-                { name: 'Algieba (Laki-laki)', value: 'ja-JP-Chirp3-HD-Algieba' },
-                { name: 'Alnilam (Laki-laki)', value: 'ja-JP-Chirp3-HD-Alnilam' },
-                { name: 'Aoede (Perempuan)', value: 'ja-JP-Chirp3-HD-Aoede' },
-                { name: 'Autonoe (Perempuan)', value: 'ja-JP-Chirp3-HD-Autonoe' },
-                { name: 'Callirrhoe (Perempuan)', value: 'ja-JP-Chirp3-HD-Callirrhoe' },
-                { name: 'Charon (Laki-laki)', value: 'ja-JP-Chirp3-HD-Charon' },
-                { name: 'Despina (Perempuan)', value: 'ja-JP-Chirp3-HD-Despina' },
-                { name: 'Enceladus (Laki-laki)', value: 'ja-JP-Chirp3-HD-Enceladus' },
-                { name: 'Erinome (Perempuan)', value: 'ja-JP-Chirp3-HD-Erinome' },
-                { name: 'Fenrir (Perempuan)', value: 'ja-JP-Chirp3-HD-Fenrir' },
-                { name: 'Gacrux (Perempuan)', value: 'ja-JP-Chirp3-HD-Gacrux' },
-                { name: 'Iapetus (Perempuan)', value: 'ja-JP-Chirp3-HD-Iapetus' },
-                { name: 'Kore (Perempuan)', value: 'ja-JP-Chirp3-HD-Kore' },
-                { name: 'Laomedeia (Perempuan)', value: 'ja-JP-Chirp3-HD-Laomedeia' },
-                { name: 'Leda (Perempuan)', value: 'ja-JP-Chirp3-HD-Leda' },
-                { name: 'Orus (Laki-laki)', value: 'ja-JP-Chirp3-HD-Orus' },
-                { name: 'Puck (Laki-laki)', value: 'ja-JP-Chirp3-HD-Puck' },
-                { name: 'Pulcherrima (Perempuan)', value: 'ja-JP-Chirp3-HD-Pulcherrima' },
-                { name: 'Rasalgethi (Laki-laki)', value: 'ja-JP-Chirp3-HD-Rasalgethi' },
-                { name: 'Sadachbia (Laki-laki)', value: 'ja-JP-Chirp3-HD-Sadachbia' },
-                { name: 'Sadaltager (Laki-laki)', value: 'ja-JP-Chirp3-HD-Sadaltager' },
-                { name: 'Schedar (Laki-laki)', value: 'ja-JP-Chirp3-HD-Schedar' },
-                { name: 'Sulafat (Perempuan)', value: 'ja-JP-Chirp3-HD-Sulafat' },
-                { name: 'Umbriel (Laki-laki)', value: 'ja-JP-Chirp3-HD-Umbriel' },
-                { name: 'Vindemiatrix (Perempuan)', value: 'ja-JP-Chirp3-HD-Vindemiatrix' },
-                { name: 'Zubenelgenubi (Perempuan)', value: 'ja-JP-Chirp3-HD-Zubenelgenubi' }
+                // Standard Voices
+                { name: 'Standard-A (Perempuan)', value: 'ja-JP-Standard-A' },
+                { name: 'Standard-B (Laki-laki)', value: 'ja-JP-Standard-B' },
+                { name: 'Standard-C (Perempuan)', value: 'ja-JP-Standard-C' },
+                { name: 'Standard-D (Laki-laki)', value: 'ja-JP-Standard-D' },
+
+                // WaveNet Voices
+                { name: 'WaveNet-A (Perempuan)', value: 'ja-JP-Wavenet-A' },
+                { name: 'WaveNet-B (Laki-laki)', value: 'ja-JP-Wavenet-B' },
+                { name: 'WaveNet-C (Perempuan)', value: 'ja-JP-Wavenet-C' },
+                { name: 'WaveNet-D (Laki-laki)', value: 'ja-JP-Wavenet-D' },
+
+                // Neural2 Voices
+                { name: 'Neural2-B (Perempuan)', value: 'ja-JP-Neural2-B' },
+                { name: 'Neural2-C (Laki-laki)', value: 'ja-JP-Neural2-C' },
+                { name: 'Neural2-D (Perempuan)', value: 'ja-JP-Neural2-D' },
+
+                // Chirp Voices (Studio)
+                { name: 'Studio-ja-JP-Chirp-v1-B (Laki-laki)', value: 'ja-JP-Chirp-v1-B' },
+                { name: 'Studio-ja-JP-Chirp-v1-C (Perempuan)', value: 'ja-JP-Chirp-v1-C' },
             ]
         };
 
@@ -158,6 +157,8 @@
             loadingIndicator: document.getElementById('loading-indicator'),
             errorMessage: document.getElementById('error-message'),
             audioPlayer: document.getElementById('audio-player'),
+            audioFormat: document.getElementById('audio-format'),
+            downloadLink: document.getElementById('download-link'),
         };
 
         // --- RENDER FUNCTIONS ---
@@ -201,8 +202,8 @@
             state.speakers.forEach(speaker => {
                 const settingEl = document.createElement('div');
                 settingEl.className = 'bg-gray-800 rounded-lg border border-gray-700 p-4';
-                
-                const voiceOptions = state.availableVoices.map(v => 
+
+                const voiceOptions = state.availableVoices.map(v =>
                     `<option value="${v.value}" ${speaker.voice === v.value ? 'selected' : ''}>${v.name}</option>`
                 ).join('');
 
@@ -242,7 +243,7 @@
             });
             renderDialogues();
         }
-        
+
         function handleDialogueUpdate(e) {
             const target = e.target;
             if (target.matches('.instruction-input, .dialogue-input')) {
@@ -274,7 +275,7 @@
                 speaker.voice = target.value;
             }
         }
-        
+
         async function handleGenerateSpeech() {
             state.apiKey = dom.apiKeyInput.value;
             if (!state.apiKey) {
@@ -299,16 +300,14 @@
                     .replace(/>/g, '&gt;')
                     .replace(/"/g, '&quot;')
                     .replace(/'/g, '&apos;');
-                
+
                 return `<voice name="${speaker.voice}">${escapedText}</voice>`;
             }).join('\n');
 
             const full_ssml = `<speak>${ssml_content}</speak>`;
 
-            // FINAL PAYLOAD STRUCTURE - This is the correct structure.
-            // The main `voice` object is required, even when using SSML.
-            // We use the first speaker's voice as the main voice parameter.
             const mainVoice = state.speakers.find(s => s.id === state.dialogues[0].speakerId);
+            const audioFormat = dom.audioFormat.value;
 
             const payload = {
                 input: {
@@ -316,15 +315,16 @@
                 },
                 voice: {
                     languageCode: 'ja-JP',
-                    name: mainVoice.voice // This is the required field that was missing.
+                    name: mainVoice.voice
                 },
                 audioConfig: {
-                    audioEncoding: 'MP3'
-                }
+                    audioEncoding: audioFormat
+                },
+                model: "gemini-2.5-flash"
             };
 
             try {
-                const response = await fetch(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${state.apiKey}`, {
+                const response = await fetch(`https://texttospeech.googleapis.com/v1beta1/text:synthesize?key=${state.apiKey}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
@@ -338,31 +338,41 @@
                 }
 
                 if (result.audioContent) {
-                    dom.audioPlayer.src = `data:audio/mp3;base64,${result.audioContent}`;
+                    const audioType = audioFormat === 'MP3' ? 'audio/mpeg' : 'audio/wav';
+                    const audioSrc = `data:${audioType};base64,${result.audioContent}`;
+                    dom.audioPlayer.src = audioSrc;
                     dom.audioPlayer.classList.remove('hidden');
                     dom.audioPlayer.classList.add('fade-in');
+
+                    dom.downloadLink.href = audioSrc;
+                    dom.downloadLink.download = `speech.${audioFormat.toLowerCase()}`;
+                    dom.downloadLink.classList.remove('hidden');
                 } else {
                      throw new Error('Tidak ada konten audio dalam respons API.');
                 }
 
             } catch (error) {
-                console.error('Error generating speech:', error);
-                showError(`Gagal menghasilkan audio: ${error.message}`);
+                showError('Gagal menghasilkan audio', error);
             } finally {
                 showLoading(false);
             }
         }
 
         // --- UTILITY FUNCTIONS ---
-        
+
         function showLoading(isLoading) {
             dom.loadingIndicator.classList.toggle('hidden', !isLoading);
             dom.generateBtn.disabled = isLoading;
             dom.generateBtn.classList.toggle('opacity-50', isLoading);
         }
 
-        function showError(message) {
-            dom.errorMessage.textContent = message;
+        function showError(message, error) {
+            let displayMessage = message;
+            if (error) {
+                console.error(error);
+                displayMessage += `: ${error.message}`;
+            }
+            dom.errorMessage.textContent = displayMessage;
             dom.errorMessage.classList.remove('hidden');
             dom.errorMessage.classList.add('fade-in');
         }
@@ -372,14 +382,14 @@
         }
 
         // --- INITIALIZATION ---
-        
+
         function initialize() {
             dom.addDialogueBtn.addEventListener('click', handleAddDialogue);
             dom.dialogueContainer.addEventListener('input', handleDialogueUpdate);
             dom.dialogueContainer.addEventListener('click', handleDeleteDialogue);
             dom.voiceSettingsContainer.addEventListener('input', handleSettingsUpdate);
             dom.generateBtn.addEventListener('click', handleGenerateSpeech);
-            
+
             renderVoiceSettings();
             renderDialogues();
         }
