@@ -6,7 +6,7 @@
     <title>Gemini TTS Director - Final Version</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/merger-audio/merger-audio.min.js"></script>
+    <script src="https://unpkg.com/merger-audio"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -310,7 +310,7 @@
                 return;
             }
 
-            if (typeof window.mergerAudio === 'undefined') {
+            if (typeof mergerAudio === 'undefined') {
                 showError("Audio merger library not loaded. Please try again in a few moments.");
                 return;
             }
@@ -377,7 +377,7 @@
             showLoading(true, "Merging audio files...");
 
             try {
-                const mergedAudio = await window.mergerAudio.merge(audioBuffers, {
+                const mergedAudio = await mergerAudio.merge(audioBuffers, {
                     format: dom.audioFormat.value.toLowerCase(),
                 });
                 const audioSrc = URL.createObjectURL(mergedAudio);
