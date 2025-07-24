@@ -6,6 +6,7 @@
     <title>Gemini TTS Director - Final Version</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/merger-audio/merger-audio.min.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -74,7 +75,7 @@
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    <span class="text-gray-300">Menghasilkan audio, mohon tunggu...</span>
+                    <span id="loading-text" class="text-gray-300">Menghasilkan audio, mohon tunggu...</span>
                 </div>
                  <div id="error-message" class="hidden p-4 bg-red-900 border border-red-700 text-red-200 rounded-lg"></div>
                  <audio id="audio-player" controls class="w-full mt-4 hidden"></audio>
@@ -176,6 +177,7 @@
             generateBtn: document.getElementById('generate-btn'),
             apiKeyInput: document.getElementById('apiKey'),
             loadingIndicator: document.getElementById('loading-indicator'),
+            loadingText: document.getElementById('loading-text'),
             errorMessage: document.getElementById('error-message'),
             audioPlayer: document.getElementById('audio-player'),
             audioFormat: document.getElementById('audio-format'),
@@ -308,71 +310,82 @@
                 return;
             }
 
-            showLoading(true);
+            showLoading(true, "Initializing...");
             hideError();
             dom.audioPlayer.classList.add('hidden');
+            dom.downloadLink.classList.add('hidden');
 
-            const ssml_content = state.dialogues.map(dialogue => {
+            const audioBuffers = [];
+
+            for (let i = 0; i < state.dialogues.length; i++) {
+                const dialogue = state.dialogues[i];
                 const speaker = state.speakers.find(s => s.id === dialogue.speakerId);
                 const textToSpeak = `${dialogue.instruction} ${dialogue.text}`;
-                const escapedText = textToSpeak
-                    .replace(/&/g, '&amp;')
-                    .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;')
-                    .replace(/"/g, '&quot;')
-                    .replace(/'/g, '&apos;');
 
-                return `<voice name="${speaker.voice}">${escapedText}</voice>`;
-            }).join('\n');
+                showLoading(true, `Synthesizing dialogue ${i + 1} of ${state.dialogues.length}...`);
 
-            const full_ssml = `<speak>${ssml_content}</speak>`;
+                const payload = {
+                    input: {
+                        text: textToSpeak
+                    },
+                    voice: {
+                        languageCode: 'ja-JP',
+                        name: speaker.voice
+                    },
+                    audioConfig: {
+                        audioEncoding: 'MP3'
+                    }
+                };
 
-            const mainVoice = state.speakers.find(s => s.id === state.dialogues[0].speakerId);
-            const audioFormat = dom.audioFormat.value;
+                try {
+                    const response = await fetch(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${state.apiKey}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
 
-            const payload = {
-                input: {
-                    ssml: full_ssml
-                },
-                voice: {
-                    languageCode: 'ja-JP',
-                    name: mainVoice.voice
-                },
-                audioConfig: {
-                    audioEncoding: audioFormat
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                        const errorMessage = result.error?.message || 'Terjadi kesalahan pada API.';
+                        throw new Error(errorMessage);
+                    }
+
+                    if (result.audioContent) {
+                        const audioData = atob(result.audioContent);
+                        const audioArray = new Uint8Array(audioData.length);
+                        for (let j = 0; j < audioData.length; j++) {
+                            audioArray[j] = audioData.charCodeAt(j);
+                        }
+                        audioBuffers.push(audioArray.buffer);
+                    } else {
+                        throw new Error('Tidak ada konten audio dalam respons API.');
+                    }
+
+                } catch (error) {
+                    showError(`Gagal mensintesis dialog ${i + 1}`, error);
+                    showLoading(false);
+                    return;
                 }
-            };
+            }
+
+            showLoading(true, "Merging audio files...");
 
             try {
-                const response = await fetch(`https://texttospeech.googleapis.com/v1/text:synthesize?key=${state.apiKey}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                const mergedAudio = await mergerAudio.merge(audioBuffers, {
+                    format: dom.audioFormat.value.toLowerCase(),
                 });
+                const audioSrc = URL.createObjectURL(mergedAudio);
+                dom.audioPlayer.src = audioSrc;
+                dom.audioPlayer.classList.remove('hidden');
+                dom.audioPlayer.classList.add('fade-in');
 
-                const result = await response.json();
-
-                if (!response.ok) {
-                    const errorMessage = result.error?.message || 'Terjadi kesalahan pada API.';
-                    throw new Error(errorMessage);
-                }
-
-                if (result.audioContent) {
-                    const audioType = audioFormat === 'MP3' ? 'audio/mpeg' : 'audio/wav';
-                    const audioSrc = `data:${audioType};base64,${result.audioContent}`;
-                    dom.audioPlayer.src = audioSrc;
-                    dom.audioPlayer.classList.remove('hidden');
-                    dom.audioPlayer.classList.add('fade-in');
-
-                    dom.downloadLink.href = audioSrc;
-                    dom.downloadLink.download = `speech.${audioFormat.toLowerCase()}`;
-                    dom.downloadLink.classList.remove('hidden');
-                } else {
-                     throw new Error('Tidak ada konten audio dalam respons API.');
-                }
+                dom.downloadLink.href = audioSrc;
+                dom.downloadLink.download = `speech.${dom.audioFormat.value.toLowerCase()}`;
+                dom.downloadLink.classList.remove('hidden');
 
             } catch (error) {
-                showError('Gagal menghasilkan audio', error);
+                showError('Gagal menggabungkan file audio', error);
             } finally {
                 showLoading(false);
             }
@@ -380,7 +393,8 @@
 
         // --- UTILITY FUNCTIONS ---
 
-        function showLoading(isLoading) {
+        function showLoading(isLoading, text = "Menghasilkan audio, mohon tunggu...") {
+            dom.loadingText.textContent = text;
             dom.loadingIndicator.classList.toggle('hidden', !isLoading);
             dom.generateBtn.disabled = isLoading;
             dom.generateBtn.classList.toggle('opacity-50', isLoading);
