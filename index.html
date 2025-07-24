@@ -310,6 +310,11 @@
                 return;
             }
 
+            if (typeof window.mergerAudio === 'undefined') {
+                showError("Audio merger library not loaded. Please try again in a few moments.");
+                return;
+            }
+
             showLoading(true, "Initializing...");
             hideError();
             dom.audioPlayer.classList.add('hidden');
@@ -372,7 +377,7 @@
             showLoading(true, "Merging audio files...");
 
             try {
-                const mergedAudio = await mergerAudio.merge(audioBuffers, {
+                const mergedAudio = await window.mergerAudio.merge(audioBuffers, {
                     format: dom.audioFormat.value.toLowerCase(),
                 });
                 const audioSrc = URL.createObjectURL(mergedAudio);
